@@ -1,7 +1,11 @@
 import pygame
 import json
 from random import randint
+from bag import Bag
 
+curBag=Bag()
+
+print(curBag.pieces)
 #keybinds
 while True:
     try:
@@ -22,7 +26,6 @@ while True:
         'ARR':10}
         file.write(json.dumps(temp))
         
-
 pygame.init()
 color=[255,255,255]
 win=pygame.display.set_mode((300,300))
@@ -51,7 +54,6 @@ def checkTiming(key,time):#checks das timings
             xPos+=10
         input_timers[key]+=1
     elif time>DAS:
-        print(1)
         if key==left:
             xPos-=10
         else:
@@ -63,7 +65,7 @@ def checkTiming(key,time):#checks das timings
 
 running=True
 while running:
-    pygame.draw.rect(win, [0,0,0], [xPos,yPos,10,10])#deletes piece
+    curBag.drawPiece(win,'Z',xPos,yPos,2)#deletes prev frame
 
     if gravityTimer<(gravity*FPS):#checks if it is time to do gravity
         gravityTimer=gravityTimer+1
@@ -79,20 +81,17 @@ while running:
     #checks for movement
     pressed = pygame.key.get_pressed()
     for k in input_timers:
-        print(k,input_timers[k])
         if pressed[k]:
             checkTiming(k,input_timers[k])
         else:
             input_timers[k]=0
-
     if pressed[down]:
         yPos+=10
 
            
             
     
-    
-    pygame.draw.rect(win, color, [xPos,yPos,10,10])
+    curBag.drawPiece(win,'Z',xPos,yPos)
     pygame.display.update()
     clock.tick(FPS)# checks if it has reached the given millescoands if it hasnt it waits
 
