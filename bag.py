@@ -50,19 +50,24 @@ T = {
     2: [[-10, 0], [0, 0], [0, 10], [10, 0]],
     3: [[-10, 0], [0, -10], [0, 0], [0, 10]]
 }
- 
+queueDic={
+
+}
  
 class Bag:
     def __init__(self):
         self.pieces = []
-        self.newBag()
+        self.queuePlace=0
+        self.make_new_bag()
+        print(self.pieces)
  
-    def newBag(self):
+    def make_new_bag(self):
         temp = list(shapes)
         for i in range(7):
-            temp2 = temp[random.randint(0, len(temp)-1)]
+            temp2=temp[random.randint(0, len(temp)-1)]
             self.pieces.append(temp2)
             temp.remove(temp2)
+        queueDic[self.queuePlace]=self.pieces
  
  
 def get_data(val, piece):

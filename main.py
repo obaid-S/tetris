@@ -1,5 +1,3 @@
-
-
 import pygame
 import json
 from random import randint
@@ -7,8 +5,6 @@ from bag import Bag
 from board import Board
  
  
-curBag = Bag()
-allBag = curBag.pieces
  
 # win init
 pygame.init()
@@ -30,13 +26,14 @@ gravity = 1  # decrease to make quicker
 playerNum = 1  # num of players
 players = []
 for player in range(1, (playerNum+1)):
-    player = Board(startxPos, startyPos, player, allBag)
+    player = Board(startxPos, startyPos, player)
     players.append(player)
  
  
 running = True
 while running:
     for player in players:
+        player.piece = player.bag.pieces[0]
         player.grid(win, gridScreen)
         player.draw_piece(win, 2)  # deletes prev frame
         player.gravity(FPS, gravity)
@@ -54,15 +51,15 @@ while running:
  
         # checks for movement
         pressed = pygame.key.get_pressed()
-        for k in player.input_timers:
-            if pressed[k]:
-                player.check_timing(k, player.input_timers[k])
+        for key in player.input_timers:
+            if pressed[key]:
+                player.check_timing(key)
             else:
-                player.input_timers[k] = 0
+                player.input_timers[key] = 0
         if pressed[player.down]:
             player.curY += 10
  
-        player.draw_piece(win)
+    player.draw_piece(win)
     pygame.display.update()
     # checks if it has reached the given millescoands if it hasnt it waits
     clock.tick(FPS)

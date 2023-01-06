@@ -1,14 +1,12 @@
-
 import json
 import pygame
 from bag import get_data
-
-# test
-
-
+from bag import Bag
+from bag import queueDic
+ 
 class Board:
-
-    def __init__(self, firstX, firstY, playerNum, curBag):
+ 
+    def __init__(self, firstX, firstY, playerNum):
         while True:
             try:
                 file = open('keyBinds.txt', 'r')
@@ -39,12 +37,20 @@ class Board:
         self.firstY = firstY
         self.curX = self.firstX+40
         self.curY = self.firstY
-        self.piece = curBag[0]
+        self.bag=Bag()
+        self.piece = self.bag.pieces[0]
         self.gravityTimer = 0
+        self.bottomBorder=pygame.Rect(self.firstX,self.firstY+200,100,10)
+        self.rightBorder=pygame.Rect(self.firstX+100,self.firstY-20,10,220)
+        self.leftBorder=pygame.Rect(self.firstX-10,self.firstY-20,10,220)
+        self.blocks=[]
+        self.update_blocks()
+        
 
+ 
     # checks das timings
-    def check_timing(self, key, time, ):
-        if time == 0:
+    def check_timing(self, key ):
+        if self.input_timers[key] == 0:
             if key == self.left:
                 if self.curX > 100:
                     self.curX -= 10
@@ -52,7 +58,7 @@ class Board:
                 if self.curX < 200:
                     self.curX += 10
             self.input_timers[key] += 1
-        elif time > self.DAS:
+        elif self.input_timers[key] > self.DAS:
             if key == self.left:
                 if self.curX > 100:
                     self.curX -= 10
@@ -61,7 +67,7 @@ class Board:
                     self.curX += 10
         else:
             self.input_timers[key] += 1
-
+ 
     # creates background grid
     def grid(self, win, gridScreen):
         height = 20
@@ -74,7 +80,7 @@ class Board:
                                  (box)*10, (boxs)*10, 10, 10], 1)
         win.blit(background, (self.firstX, self.firstY))
         win.blit(gridScreen, (self.firstX, self.firstY))
-
+ 
     # rotate piece
     def rotate(self, dir):
         if dir == '+':
@@ -87,19 +93,21 @@ class Board:
                 self.rotation = 3
             else:
                 self.rotation -= 1
-
+ 
     # draws Piece
-    def draw_piece(self, win, color=0):
-        pos = get_data(self.rotation, self.piece)
+    def draw_piece(self, win, color=0):  
+        self.update_blocks()
+        self.check_collide()
         if color == 0:
-            for i in range(4):
-                pygame.draw.rect(win, get_data('color', self.piece),  [
-                                 self.curX+pos[i][0], self.curY+pos[i][1], 10, 10])
+            for block in self.blocks:
+                pygame.draw.rect(win, get_data('color', self.piece), block )
         else:
-            for i in range(4):
-                pygame.draw.rect(win, [0, 0, 0], [
-                                 self.curX+pos[i][0], self.curY+pos[i][1], 10, 10])
-
+            for block in self.blocks:
+                pygame.draw.rect(win, [0, 0, 0], block)
+                
+        pygame.draw.rect(win,[200,20,20],self.leftBorder)
+        pygame.draw.rect(win,[200,20,20],self.rightBorder)
+        pygame.draw.rect(win,[20,200,20],self.bottomBorder)
     def gravity(self, FPS, gravity):
         # checks if it is time to do gravity
         if self.gravityTimer < (gravity*FPS):
@@ -107,3 +115,33 @@ class Board:
         else:
             self.gravityTimer = 0
             self.curY = self.curY+10
+ 
+    def update_blocks(self):
+        self.blocks=[]
+        pos = get_data(self.rotation, self.piece)
+        for i in range (4):
+            temp=pygame.Rect(self.curX+pos[i][0], self.curY+pos[i][1], 10, 10)
+            self.blocks.append(temp)
+
+    def check_collide(self):
+        for block in self.blocks:
+            if block.colliderect(self.rightBorder):
+                self.curX-=10
+            if block.colliderect(self.leftBorder):
+                self.curX+=10
+            if block.colliderect(self.bottomBorder):
+                self.curY-=30
+                del self.bag.pieces[0]
+                if len(self.bag.pieces)==0:
+                    self.new_bag()
+                else:
+                    self.piece=self.bag.pieces[0]
+                self.curX = self.firstX+40
+                self.curY = self.firstY
+                    
+    def new_bag(self):
+        if self.bag.queuePlace < max(queueDic):#checks if there is a higher bag, if there is new one isnt made
+            self.bag.queuePlace+=1
+            self.bag.pieces=queueDic[self.bag.queuePlace]
+        else:
+            self.bag.make_new_bag()
