@@ -2,10 +2,12 @@
 import json
 import pygame
 from bag import get_data
- 
- 
+
+# test
+
+
 class Board:
- 
+
     def __init__(self, firstX, firstY, playerNum, curBag):
         while True:
             try:
@@ -39,7 +41,7 @@ class Board:
         self.curY = self.firstY
         self.piece = curBag[0]
         self.gravityTimer = 0
- 
+
     # checks das timings
     def check_timing(self, key, time, ):
         if time == 0:
@@ -59,7 +61,7 @@ class Board:
                     self.curX += 10
         else:
             self.input_timers[key] += 1
- 
+
     # creates background grid
     def grid(self, win, gridScreen):
         height = 20
@@ -72,7 +74,7 @@ class Board:
                                  (box)*10, (boxs)*10, 10, 10], 1)
         win.blit(background, (self.firstX, self.firstY))
         win.blit(gridScreen, (self.firstX, self.firstY))
- 
+
     # rotate piece
     def rotate(self, dir):
         if dir == '+':
@@ -85,7 +87,7 @@ class Board:
                 self.rotation = 3
             else:
                 self.rotation -= 1
- 
+
     # draws Piece
     def draw_piece(self, win, color=0):
         pos = get_data(self.rotation, self.piece)
@@ -97,7 +99,7 @@ class Board:
             for i in range(4):
                 pygame.draw.rect(win, [0, 0, 0], [
                                  self.curX+pos[i][0], self.curY+pos[i][1], 10, 10])
- 
+
     def gravity(self, FPS, gravity):
         # checks if it is time to do gravity
         if self.gravityTimer < (gravity*FPS):
@@ -105,4 +107,3 @@ class Board:
         else:
             self.gravityTimer = 0
             self.curY = self.curY+10
- 
