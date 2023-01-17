@@ -1,0 +1,1 @@
+make a row x column list so as blocks are placed it sees which row x column it is in and marks those as occupied 

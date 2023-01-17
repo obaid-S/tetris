@@ -1,10 +1,7 @@
 import pygame
-import json
 from random import randint
 from bag import Bag
 from board import Board
- 
- 
  
 # win init
 pygame.init()
@@ -12,7 +9,6 @@ win = pygame.display.set_mode((300, 300))
 win.fill([70, 120, 70])
 # makes it so that u can give a alpha value
 gridScreen = pygame.Surface((1000, 1000), pygame.SRCALPHA)
- 
  
 # makes a clock to keep track of frames
 FPS = 30
@@ -59,7 +55,7 @@ while running:
         if pressed[player.down]:
             player.curY += 10
  
-    player.draw_piece(win)
+        player.draw_piece(win)
     pygame.display.update()
     # checks if it has reached the given millescoands if it hasnt it waits
     clock.tick(FPS)
