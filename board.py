@@ -140,22 +140,21 @@ class Board:
                 break
             
         for block in self.blocks:
-            if block.colliderect(self.bottomBorder):
+            if block.y>self.firstY+190:
+                self.curY=220
                 self.update_blocks()
-            
+                print(self.curY)
                 temp=[]
                 for block in self.blocks:
                     temp.append([block.x,block.y])
 
-                self.place_blocks(temp[0],temp[1],temp[2],temp[3])
-
+                self.place_blocks([temp[0],temp[1],temp[2],temp[3]])
                 del self.bag.pieces[0]
                 print(self.bag.pieces)
                 if len(self.bag.pieces)==0:
                     self.new_bag()
                 else:
                     self.piece=self.bag.pieces[0]
-
 
                 self.rotation=0
                 self.curX = self.firstX+40
@@ -164,8 +163,7 @@ class Board:
         self.update_blocks()
     
     #adds current block to placed blocks
-    def place_blocks(self,one,two,three,four):
-        temp=[one,two,three,four]
+    def place_blocks(self,temp):
         for block in temp:
             x=int((block[0]-self.firstX)/10)
             y=int(19-(200-(block[1]-self.firstY))/10)
