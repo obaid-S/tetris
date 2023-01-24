@@ -1,1 +1,5 @@
 make a row x column list so as blocks are placed it sees which row x column it is in and marks those as occupied 
+
+when holding right/left and down it breaks
+
+when holding right and left at once it moves

@@ -41,7 +41,6 @@ while running:
                     player.rotate('+')
                 if event.key == player.counterClockWise:
                     player.rotate('-')
- 
             if event.type == pygame.QUIT:  # game closses
                 running = False
  

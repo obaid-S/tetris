@@ -7,7 +7,7 @@ from bag import queueDic
 class Board:
     def __init__(self, firstX, firstY, playerNum):
         while True:
-            try:
+            try:#if the text file doesnt exsist give default cntrls
                 file = open('keyBinds.txt', 'r')
                 binds = json.loads(file.read())
                 binds = binds[f'player{playerNum}']
@@ -31,10 +31,6 @@ class Board:
                         'ARR': 10}}
                 file.write(json.dumps(temp))
         self.rotation = 0
-        self.board={
-            
-        }
-            #20x10 list
         self.input_timers = {self.left: 0, self.right: 0}
         self.firstX = firstX
         self.firstY = firstY
@@ -46,15 +42,14 @@ class Board:
         self.bottomBorder=pygame.Rect(self.firstX,self.firstY+200,100,10)
         self.rightBorder=pygame.Rect(self.firstX+100,self.firstY-20,10,220)
         self.leftBorder=pygame.Rect(self.firstX-10,self.firstY-20,10,220)
-        self.blocks=[]
+        self.blocks=[]#small blocks in piece
         self.update_blocks()
+        self.board=[[0]*10 for _ in range(20)]#creates a 20 row by 10 column list
 
         
-
- 
     # checks das timings
     def check_timing(self, key ):
-        if self.input_timers[key] == 0:
+        if self.input_timers[key] == 0:#moves on first hit
             if key == self.left:
                 if self.curX > 90:
                     self.curX -= 10
@@ -62,7 +57,8 @@ class Board:
                 if self.curX < 190:
                     self.curX += 10
             self.input_timers[key] += 1
-        elif self.input_timers[key] > self.DAS:
+
+        elif self.input_timers[key] > self.DAS:#moves continoiusly
             if key == self.left:
                 if self.curX > 90:
                     self.curX -= 10
@@ -70,7 +66,7 @@ class Board:
                 if self.curX < 190:
                     self.curX += 10
         else:
-            self.input_timers[key] += 1
+            self.input_timers[key] += 1#checks if it has been enough time to move conuinously
  
     # creates background grid
     def grid(self, win, gridScreen):
@@ -114,7 +110,7 @@ class Board:
         pygame.draw.rect(win,[20,200,20],self.bottomBorder)
         
             
-    
+    #moves blocks down
     def gravity(self, FPS, gravity):
         # checks if it is time to do gravity
         if self.gravityTimer < (gravity*FPS):
@@ -123,38 +119,62 @@ class Board:
             self.gravityTimer = 0
             self.curY = self.curY+10
  
+    #makes rects out of the blocks
     def update_blocks(self):
         self.blocks=[]
-        pos = get_data(self.rotation, self.piece)
+        pos = get_data(self.rotation, self.piece)#   type returned [[0, -10], [0, 0], [0, 10], [10, 0]],
         for i in range (4):
             temp=pygame.Rect(self.curX+pos[i][0], self.curY+pos[i][1], 10, 10)
             self.blocks.append(temp)
 
-    def check_collide(self):
-        for block in self.blocks:#left and right border
-            if block.colliderect(self.rightBorder):
+    #checks for collision with borders
+    def check_collide(self,testAll=True):
+        for block in self.blocks:#left and right border       
+            if block.x>self.firstX+90:
                 self.curX-=10
+                self.update_blocks()
                 break
-            elif block.colliderect(self.leftBorder):
+            elif block.x<self.firstX:
                 self.curX+=10
-                print(self.curX,block)
+                self.update_blocks()
                 break
-        for block in self.blocks:#bottom border
+            
+        for block in self.blocks:
             if block.colliderect(self.bottomBorder):
+                self.update_blocks()
+            
+                temp=[]
+                for block in self.blocks:
+                    temp.append([block.x,block.y])
+
+                self.place_blocks(temp[0],temp[1],temp[2],temp[3])
+
                 del self.bag.pieces[0]
                 print(self.bag.pieces)
                 if len(self.bag.pieces)==0:
                     self.new_bag()
                 else:
                     self.piece=self.bag.pieces[0]
+
+
                 self.rotation=0
                 self.curX = self.firstX+40
                 self.curY = self.firstY
                 break
         self.update_blocks()
-
-
-
+    
+    #adds current block to placed blocks
+    def place_blocks(self,one,two,three,four):
+        temp=[one,two,three,four]
+        for block in temp:
+            x=int((block[0]-self.firstX)/10)
+            y=int(19-(200-(block[1]-self.firstY))/10)
+            print(f'{x} {y}, xy')
+            self.board[y][x]=get_data('color', self.piece)
+        for block in self.board:
+            if block:
+                pass
+    #new bag
     def new_bag(self):
         if self.bag.queuePlace < max(queueDic):#checks if there is a higher bag, if there is new one isnt made
             self.bag.queuePlace+=1
