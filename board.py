@@ -44,7 +44,9 @@ class Board:
         self.leftBorder=pygame.Rect(self.firstX-10,self.firstY-20,10,220)
         self.blocks=[]#small blocks in piece
         self.update_blocks()
-        self.board=[[0]*10 for _ in range(20)]#creates a 20 row by 10 column list
+        self.boardColors=[[0]*10 for _ in range(20)]#creates a 20 row by 10 column list
+        self.boardRects=[[0]*10 for _ in range(20)]
+
 
         
     # checks das timings
@@ -104,11 +106,18 @@ class Board:
         else:
             for block in self.blocks:
                 pygame.draw.rect(win, [0, 0, 0], block)
-                
-        pygame.draw.rect(win,[200,20,20],self.leftBorder)
-        pygame.draw.rect(win,[200,20,20],self.rightBorder)
-        pygame.draw.rect(win,[20,200,20],self.bottomBorder)
         
+                
+        for row in self.boardRects:
+            print(row)
+            for col in row:
+                if col:  
+                    print(row)
+                    #gets the corresponding rect in the color positon
+                    y=self.boardRects.index(row)
+                    x=self.boardRects[y].index(col)
+                    print(x,y)
+                    pygame.draw.rect(win,col,self.boardRects[y][x] )
             
     #moves blocks down
     def gravity(self, FPS, gravity):
@@ -118,7 +127,6 @@ class Board:
         else:
             self.gravityTimer = 0
             self.curY = self.curY+10
- 
     #makes rects out of the blocks
     def update_blocks(self):
         self.blocks=[]
@@ -141,9 +149,8 @@ class Board:
             
         for block in self.blocks:
             if block.y>self.firstY+190:
-                self.curY=220
+                
                 self.update_blocks()
-                print(self.curY)
                 temp=[]
                 for block in self.blocks:
                     temp.append([block.x,block.y])
@@ -155,7 +162,6 @@ class Board:
                     self.new_bag()
                 else:
                     self.piece=self.bag.pieces[0]
-
                 self.rotation=0
                 self.curX = self.firstX+40
                 self.curY = self.firstY
@@ -164,14 +170,13 @@ class Board:
     
     #adds current block to placed blocks
     def place_blocks(self,temp):
-        for block in temp:
+        for block in temp:#temp = [x,y]
             x=int((block[0]-self.firstX)/10)
             y=int(19-(200-(block[1]-self.firstY))/10)
-            print(f'{x} {y}, xy')
-            self.board[y][x]=get_data('color', self.piece)
-        for block in self.board:
-            if block:
-                pass
+            
+            self.boardColors[y][x]=get_data('color', self.piece)#adds color of box to board
+            self.boardRects[y][x]=pygame.Rect((x*10)+self.firstX,(y*10)+self.firstY,10,10)            
+            #x and y in list is correct
     #new bag
     def new_bag(self):
         if self.bag.queuePlace < max(queueDic):#checks if there is a higher bag, if there is new one isnt made
