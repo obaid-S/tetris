@@ -46,6 +46,7 @@ class Board:
         self.update_blocks()
         self.boardColors=[[0]*10 for _ in range(20)]#creates a 20 row by 10 column list
         self.boardRects=[[0]*10 for _ in range(20)]
+        self.lastMove=0
 
 
         
@@ -54,19 +55,19 @@ class Board:
         if self.input_timers[key] == 0:#moves on first hit
             if key == self.left:
                 if self.curX > 90:
-                    self.curX -= 10
+                    self.move('x',-10)
             else:
                 if self.curX < 190:
-                    self.curX += 10
+                    self.move('x',+10)
             self.input_timers[key] += 1
 
         elif self.input_timers[key] > self.DAS:#moves continoiusly
             if key == self.left:
                 if self.curX > 90:
-                    self.curX -= 10
+                    self.move('x',-10)
             else:
                 if self.curX < 190:
-                    self.curX += 10
+                    self.move('x',+10)
         else:
             self.input_timers[key] += 1#checks if it has been enough time to move conuinously
  
@@ -109,15 +110,13 @@ class Board:
         
                 
         for row in self.boardRects:
-            print(row)
             for col in row:
                 if col:  
-                    print(row)
                     #gets the corresponding rect in the color positon
                     y=self.boardRects.index(row)
                     x=self.boardRects[y].index(col)
-                    print(x,y)
-                    pygame.draw.rect(win,col,self.boardRects[y][x] )
+                    pygame.draw.rect(win,self.boardColors[y][x],self.boardRects[y][x])#weird colors pygame.draw.rect(win,col,self.boardRects[y][x] )
+
             
     #moves blocks down
     def gravity(self, FPS, gravity):
@@ -126,7 +125,8 @@ class Board:
             self.gravityTimer = self.gravityTimer+1
         else:
             self.gravityTimer = 0
-            self.curY = self.curY+10
+            self.move('y', 10)
+        
     #makes rects out of the blocks
     def update_blocks(self):
         self.blocks=[]
@@ -136,40 +136,41 @@ class Board:
             self.blocks.append(temp)
 
     #checks for collision with borders
-    def check_collide(self,testAll=True):
+    def check_collide(self):
+        for block in self.blocks:
+            for row in self.boardRects:
+                for col in row:
+                    if col:
+                        if block.colliderect(col):
+                            self.place_blocks()
+                            return
+            
+                                    
+                            
+                            
+            
+
         for block in self.blocks:#left and right border       
             if block.x>self.firstX+90:
-                self.curX-=10
-                self.update_blocks()
+                self.move('x',-10)
                 break
             elif block.x<self.firstX:
-                self.curX+=10
-                self.update_blocks()
+                self.move('x',10)
                 break
             
         for block in self.blocks:
             if block.y>self.firstY+190:
-                
-                self.update_blocks()
-                temp=[]
-                for block in self.blocks:
-                    temp.append([block.x,block.y])
-
-                self.place_blocks([temp[0],temp[1],temp[2],temp[3]])
-                del self.bag.pieces[0]
-                print(self.bag.pieces)
-                if len(self.bag.pieces)==0:
-                    self.new_bag()
-                else:
-                    self.piece=self.bag.pieces[0]
-                self.rotation=0
-                self.curX = self.firstX+40
-                self.curY = self.firstY
+                self.place_blocks()
                 break
         self.update_blocks()
     
     #adds current block to placed blocks
-    def place_blocks(self,temp):
+    def place_blocks(self):
+        self.update_blocks()
+        temp=[]
+        for block in self.blocks:
+            temp.append([block.x,block.y])
+
         for block in temp:#temp = [x,y]
             x=int((block[0]-self.firstX)/10)
             y=int(19-(200-(block[1]-self.firstY))/10)
@@ -178,9 +179,35 @@ class Board:
             self.boardRects[y][x]=pygame.Rect((x*10)+self.firstX,(y*10)+self.firstY,10,10)            
             #x and y in list is correct
     #new bag
+
+        del self.bag.pieces[0]
+        print(self.bag.pieces)
+        if len(self.bag.pieces)==0:
+            self.new_bag()
+        else:
+            self.piece=self.bag.pieces[0]
+        self.rotation=0
+        self.curX = self.firstX+40
+        self.curY = self.firstY
+
+
+
+        
+
+
+    
     def new_bag(self):
         if self.bag.queuePlace < max(queueDic):#checks if there is a higher bag, if there is new one isnt made
             self.bag.queuePlace+=1
             self.bag.pieces=queueDic[self.bag.queuePlace]
         else:
             self.bag.make_new_bag()
+    
+    def move(self,axis,amount):
+        if axis=='y':
+            self.curY+=amount
+        else:
+            self.curX+=amount
+        self.lastMove=[axis,amount]
+        self.update_blocks()
+   
