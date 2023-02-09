@@ -47,11 +47,12 @@ class Board:
         self.boardColors=[[0]*10 for _ in range(20)]#creates a 20 row by 10 column list
         self.boardRects=[[0]*10 for _ in range(20)]
         self.lastMove=0
+        self.lastY=self.curY
 
 
         
     # checks das timings
-    def check_timing(self, key ):
+    def check_timing(self, key):
         if self.input_timers[key] == 0:#moves on first hit
             if key == self.left:
                 if self.curX > 90:
@@ -101,14 +102,8 @@ class Board:
     def draw_piece(self, win, color=0):  
         self.update_blocks()
         self.check_collide()
-        if color == 0:
-            for block in self.blocks:
-                pygame.draw.rect(win, get_data('color', self.piece), block)
-        else:
-            for block in self.blocks:
-                pygame.draw.rect(win, [0, 0, 0], block)
-        
-                
+        self.update_blocks()
+
         for row in self.boardRects:
             for col in row:
                 if col:  
@@ -117,6 +112,14 @@ class Board:
                     x=self.boardRects[y].index(col)
                     pygame.draw.rect(win,self.boardColors[y][x],self.boardRects[y][x])#weird colors pygame.draw.rect(win,col,self.boardRects[y][x] )
 
+
+        if color == 0:
+            for block in self.blocks:
+                pygame.draw.rect(win, get_data('color', self.piece), block)
+        else:
+            for block in self.blocks:
+                pygame.draw.rect(win, [0, 0, 0], block)
+        
             
     #moves blocks down
     def gravity(self, FPS, gravity):
@@ -137,18 +140,13 @@ class Board:
 
     #checks for collision with borders
     def check_collide(self):
-        for block in self.blocks:
+        for block in self.blocks:#collision between other blocks
             for row in self.boardRects:
                 for col in row:
                     if col:
                         if block.colliderect(col):
                             self.place_blocks()
                             return
-            
-                                    
-                            
-                            
-            
 
         for block in self.blocks:#left and right border       
             if block.x>self.firstX+90:
@@ -179,6 +177,10 @@ class Board:
             self.boardRects[y][x]=pygame.Rect((x*10)+self.firstX,(y*10)+self.firstY,10,10)            
             #x and y in list is correct
     #new bag
+        self.rotation=0
+        self.curX = self.firstX+40
+        self.curY = self.firstY
+
 
         del self.bag.pieces[0]
         print(self.bag.pieces)
@@ -186,16 +188,8 @@ class Board:
             self.new_bag()
         else:
             self.piece=self.bag.pieces[0]
-        self.rotation=0
-        self.curX = self.firstX+40
-        self.curY = self.firstY
+       
 
-
-
-        
-
-
-    
     def new_bag(self):
         if self.bag.queuePlace < max(queueDic):#checks if there is a higher bag, if there is new one isnt made
             self.bag.queuePlace+=1
