@@ -104,7 +104,7 @@ class Board:
         self.check_collide()
         self.update_blocks()
 
-        for row in self.boardRects:
+        for row in self.boardRects:#blocks that are akready placed
             for col in row:
                 if col:  
                     #gets the corresponding rect in the color positon
@@ -139,27 +139,33 @@ class Board:
             self.blocks.append(temp)
 
     #checks for collision with borders
-    def check_collide(self):
-        for block in self.blocks:#collision between other blocks
-            for row in self.boardRects:
-                for col in row:
-                    if col:
-                        if block.colliderect(col):
-                            self.place_blocks()
-                            return
-
-        for block in self.blocks:#left and right border       
-            if block.x>self.firstX+90:
-                self.move('x',-10)
-                break
-            elif block.x<self.firstX:
-                self.move('x',10)
-                break
-            
-        for block in self.blocks:
-            if block.y>self.firstY+190:
-                self.place_blocks()
-                break
+    def check_collide(self, pick=1):
+        if pick==1 or pick==2:
+            for block in self.blocks:#collision between other blocks
+                for row in self.boardRects:
+                    for col in row:
+                        if col:
+                            if block.colliderect(col):
+                                if self.lastMove[0]=='y':
+                                    self.place_blocks()
+                                else:
+                                    print(self.curY)
+                                    self.move(self.lastMove[0],-self.lastMove[1])
+                                return
+        if pick==1 or pick==3:
+            for block in self.blocks:#left and right border       
+                if block.x>self.firstX+90:
+                    self.move('x',-10)
+                    break
+                elif block.x<self.firstX:
+                    self.move('x',10)
+                    break
+                
+            for block in self.blocks:
+                if block.y>self.firstY+190:
+                    self.check_collide(2)
+                    self.place_blocks()
+                    break
         self.update_blocks()
     
     #adds current block to placed blocks
@@ -204,4 +210,4 @@ class Board:
             self.curX+=amount
         self.lastMove=[axis,amount]
         self.update_blocks()
-   
+        self.check_collide()
