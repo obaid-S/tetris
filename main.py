@@ -21,11 +21,10 @@ gravity = 1  # decrease to make quicker
  
 playerNum = 1  # num of players
 players = []
-running=True
  
 def start_game():
-    global running
-    while running:
+    global stayInGame
+    while True:
         for player in players:
             player.piece = player.bag.pieces[0]
             player.grid(win, gridScreen)
@@ -42,7 +41,8 @@ def start_game():
                     if event.key == player.counterClockWise:
                         player.rotate('-')
                 if event.type == pygame.QUIT:  # game closses
-                    running = False
+                    stayInGame = False
+                    return
     
             # checks for movement
             pressed = pygame.key.get_pressed()
@@ -58,8 +58,9 @@ def start_game():
         pygame.display.update()
         # checks if it has reached the given millescoands if it hasnt it waits
         clock.tick(FPS)
-    
-while True:
+
+stayInGame=True
+while stayInGame:
     players=[]
     for player in range(1, (playerNum+1)):
         player = Board(startxPos, startyPos, player)
