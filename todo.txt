@@ -1,5 +1,3 @@
-make a row x column list so as blocks are placed it sees which row x column it is in and marks those as occupied 
+ check all lines above the cleared line and move them down one
 
-when holding right/left and down it breaks
-
-when holding right and left at once it moves
+ if a line above and below break at same time, doesnt wrk

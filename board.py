@@ -229,7 +229,7 @@ class Board:
 
             if blockInRow==10:#checks if all the spots in the row are filled with pieces
                 lines+=1
-                temp=self.boardRects.index(row)
+                temp=self.boardRects.index(row)#index of row
                 del self.boardRects[temp]
                 del self.boardColors[temp]
                 del self.boardtemp[temp]
@@ -238,10 +238,11 @@ class Board:
                 self.boardColors.insert(0,[0]*10)
                 self.boardtemp.insert(0,[0]*10)
 
-                for row in self.boardRects:
-                    for col in row:
-                        if col:
-                            col.move_ip(0,10)
+                for index,row in enumerate(self.boardRects): # check all lines above the cleared line and move them down one
+                    if index<=temp:
+                        for col in row:
+                            if col:
+                                col.move_ip(0,10)
 
 
 
