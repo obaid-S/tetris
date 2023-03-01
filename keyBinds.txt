@@ -1,1 +1,1 @@
-{"player1": {"left": 1073741904, "right": 1073741903, "down": 1073741905, "clockWise": 1073741906, "counterClockWise": 122, "DAS": 10, "ARR": 10}}
+{"player1": {"left": 1073741904, "right": 1073741903, "drop": 32, "down": 1073741905, "clockWise": 1073741906, "counterClockWise": 97, "DAS": 1, "ARR": 10}}

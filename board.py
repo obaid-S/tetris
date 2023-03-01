@@ -18,16 +18,18 @@ class Board:
                 self.counterClockWise = binds['counterClockWise']
                 self.DAS = binds['DAS']
                 self.ARR = binds['ARR']
+                self.drop = binds['drop']
                 break
             except:
                 file = open('keyBinds.txt', 'w')
                 temp = {f'player{playerNum}': {  # gets binds of player
                         'left': pygame.K_LEFT,
                         'right': pygame.K_RIGHT,
+                        'drop': pygame.K_SPACE,
                         'down': pygame.K_DOWN,
                         'clockWise': pygame.K_UP,
-                        'counterClockWise': pygame.K_z,
-                        'DAS': 10,
+                        'counterClockWise': pygame.K_a,
+                        'DAS': 1,
                         'ARR': 10}}
                 file.write(json.dumps(temp))
         self.rotation = 0
@@ -45,6 +47,8 @@ class Board:
         self.blocks=[]#small blocks in piece
         self.update_blocks()
         self.boardColors=[[0]*10 for _ in range(20)]#creates a 20 row by 10 column list
+        self.boardtemp=[[0]*10 for _ in range(20)]
+
         self.boardRects=[[0]*10 for _ in range(20)]
         self.lastMove=0
         self.lastY=self.curY
@@ -180,7 +184,8 @@ class Board:
             y=int(19-(200-(block[1]-self.firstY))/10)
             
             self.boardColors[y][x]=get_data('color', self.piece)#adds color of box to board
-            self.boardRects[y][x]=pygame.Rect((x*10)+self.firstX,(y*10)+self.firstY,10,10)            
+            self.boardRects[y][x]=pygame.Rect((x*10)+self.firstX,(y*10)+self.firstY,10,10)      
+            self.boardtemp[y][x]=1      
             #x and y in list is correct
     #new bag
         self.rotation=0
@@ -194,6 +199,8 @@ class Board:
             self.new_bag()
         else:
             self.piece=self.bag.pieces[0]
+        
+        self.check_line_clear()
        
 
     def new_bag(self):
@@ -211,3 +218,47 @@ class Board:
         self.lastMove=[axis,amount]
         self.update_blocks()
         self.check_collide()
+
+    def check_line_clear(self):
+         lines=0 #checks how many lines were cleared *USE TO SEND DMG*
+         for row in self.boardRects:
+            blockInRow=0
+            for col in row:
+                if col:
+                    blockInRow+=1
+
+            if blockInRow==10:#checks if all the spots in the row are filled with pieces
+                lines+=1
+                temp=self.boardRects.index(row)
+                del self.boardRects[temp]
+                del self.boardColors[temp]
+                del self.boardtemp[temp]
+                
+                self.boardRects.insert(0,[0]*10)
+                self.boardColors.insert(0,[0]*10)
+                self.boardtemp.insert(0,[0]*10)
+
+                for row in self.boardRects:
+                    for col in row:
+                        if col:
+                            col.move_ip(0,10)
+
+
+
+            for i in self.boardtemp:
+                  print(i)
+
+            self.update_blocks()
+            
+            
+
+             
+                
+
+    def hard_drop(self):
+        temp=self.piece
+        while temp==self.piece:
+            self.move('y',+10)
+            
+
+

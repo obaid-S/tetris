@@ -40,6 +40,9 @@ def start_game():
                         player.rotate('+')
                     if event.key == player.counterClockWise:
                         player.rotate('-')
+                    if event.key == player.drop:
+                        print(1)
+                        player.hard_drop()
                 if event.type == pygame.QUIT:  # game closses
                     stayInGame = False
                     return
