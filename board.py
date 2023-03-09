@@ -18,6 +18,7 @@ class Board:
                 self.counterClockWise = binds['counterClockWise']
                 self.DAS = binds['DAS']
                 self.ARR = binds['ARR']
+                #self.SDS=binds['SDS']
                 self.drop = binds['drop']
                 break
             except:
@@ -27,11 +28,13 @@ class Board:
                         'right': pygame.K_RIGHT,
                         'drop': pygame.K_SPACE,
                         'down': pygame.K_DOWN,
-                        'clockWise': pygame.K_UP,
+                        'clockWise': pygame.K_d,
                         'counterClockWise': pygame.K_a,
                         'DAS': 1,
+                        'SDS':10,
                         'ARR': 10}}
                 file.write(json.dumps(temp))
+        self.done=False
         self.rotation = 0
         self.input_timers = {self.left: 0, self.right: 0}
         self.firstX = firstX
@@ -69,10 +72,12 @@ class Board:
         elif self.input_timers[key] > self.DAS:#moves continoiusly
             if key == self.left:
                 if self.curX > 90:
-                    self.move('x',-10)
+                    for _ in range(self.ARR):
+                        self.move('x',-10)
             else:
                 if self.curX < 190:
-                    self.move('x',+10)
+                    for _ in range(self.ARR):
+                        self.move('x',+10)
         else:
             self.input_timers[key] += 1#checks if it has been enough time to move conuinously
  
@@ -201,7 +206,7 @@ class Board:
             self.piece=self.bag.pieces[0]
         
         self.check_line_clear()
-       
+        self.done=True
 
     def new_bag(self):
         if self.bag.queuePlace < max(queueDic):#checks if there is a higher bag, if there is new one isnt made
@@ -247,8 +252,8 @@ class Board:
 
 
             for i in self.boardtemp:
-                  print(i)
-
+                  #print(i)
+                  pass
             self.update_blocks()
             
             
@@ -257,9 +262,11 @@ class Board:
                 
 
     def hard_drop(self):
-        temp=self.piece
-        while temp==self.piece:
+        self.done=False
+        while self.done==False:
             self.move('y',+10)
+                
+        
             
 
 
