@@ -1,3 +1,0 @@
- check all lines above the cleared line and move them down one
-
- if a line above and below break at same time, doesnt wrk
