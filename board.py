@@ -50,8 +50,7 @@ class Board:
         self.blocks=[]#small blocks in piece
         self.update_blocks()
         self.boardColors=[[0]*10 for _ in range(20)]#creates a 20 row by 10 column list
-        self.boardtemp=[[0]*10 for _ in range(20)]
-
+        self.boardGhost=[[0]*10 for _ in range(20)]
         self.boardRects=[[0]*10 for _ in range(20)]
         self.lastMove=0
         self.lastY=self.curY
@@ -112,6 +111,8 @@ class Board:
         self.update_blocks()
         self.check_collide()
         self.update_blocks()
+        self.ghost_piece()
+
 
         for row in self.boardRects:#blocks that are akready placed
             for col in row:
@@ -123,8 +124,10 @@ class Board:
 
 
         if color == 0:
+            for block in self.ghost_piece_blocks:
+                 pygame.draw.rect(win, [100,100,100],block,10)
             for block in self.blocks:
-                pygame.draw.rect(win, get_data('color', self.piece), block)
+                pygame.draw.rect(win, get_data('color', self.piece), block)    
         else:
             for block in self.blocks:
                 pygame.draw.rect(win, [0, 0, 0], block)
@@ -149,19 +152,30 @@ class Board:
 
     #checks for collision with borders
     def check_collide(self, pick=1):
+        if pick==3:
+            for block in self.ghost_piece_blocks:
+                for row in self.boardRects:
+                    for col in row:
+                        if col:
+                            if block.colliderect(col):  
+                                return False
+            for block in self.ghost_piece_blocks:
+                if block.y>self.firstY+190:
+                    return False
+         
         if pick==1 or pick==2:
             for block in self.blocks:#collision between other blocks
                 for row in self.boardRects:
                     for col in row:
                         if col:
-                            if block.colliderect(col):
+                            if block.colliderect(col):  
                                 if self.lastMove[0]=='y':
                                     self.place_blocks()
                                 else:
                                     print(self.curY)
                                     self.move(self.lastMove[0],-self.lastMove[1])
                                 return
-        if pick==1 or pick==3:
+        if pick==1:
             for block in self.blocks:#left and right border       
                 if block.x>self.firstX+90:
                     self.move('x',-10)
@@ -190,7 +204,6 @@ class Board:
             
             self.boardColors[y][x]=get_data('color', self.piece)#adds color of box to board
             self.boardRects[y][x]=pygame.Rect((x*10)+self.firstX,(y*10)+self.firstY,10,10)      
-            self.boardtemp[y][x]=1      
             #x and y in list is correct
     #new bag
         self.rotation=0
@@ -237,35 +250,30 @@ class Board:
                 temp=self.boardRects.index(row)#index of row
                 del self.boardRects[temp]
                 del self.boardColors[temp]
-                del self.boardtemp[temp]
                 
                 self.boardRects.insert(0,[0]*10)
                 self.boardColors.insert(0,[0]*10)
-                self.boardtemp.insert(0,[0]*10)
 
                 for index,row in enumerate(self.boardRects): # check all lines above the cleared line and move them down one
                     if index<=temp:
                         for col in row:
                             if col:
                                 col.move_ip(0,10)
-
-
-
-            for i in self.boardtemp:
-                  #print(i)
-                  pass
             self.update_blocks()
             
-            
-
-             
-                
-
     def hard_drop(self):
         self.done=False
         while self.done==False:
             self.move('y',+10)
                 
+    def ghost_piece(self):
+        self.ghost_piece_blocks=list(self.blocks)
+        while self.check_collide(3)!=False:
+            for block in self.ghost_piece_blocks:
+                block.y+=10
+        for block in self.ghost_piece_blocks:
+            block.y-=10
+            
         
             
 
